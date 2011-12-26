@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "TextureManager.h"
 
 using namespace std;
 
@@ -11,7 +12,7 @@ protected:
 	static const int ENTITY_WIDTH = 32;
 	static const int ENTITY_HEIGHT = 32;
 	enum direction{up, down, left, right};
-	sf::Texture entitySheet;
+	sf::Texture *entitySheet;
 	sf::Sprite entitySprites[3][4];
 	sf::Sprite sprite;
 	bool loadEntitySheet(string sName);

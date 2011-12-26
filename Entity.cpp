@@ -27,7 +27,24 @@ bool Entity::loadEntitySheet(string sName)
 {
 
 	// Load the entity sheet
-	if(entitySheet.LoadFromFile(sName))
+	entitySheet = TextureManager::getTexture(sName);
+	if(entitySheet != NULL)
+	{
+		// Cut the entity sheet
+		for(int i = 0; i < 4; i++)
+		{
+			for(int j = 0; j < 3; j++)
+			{
+				entitySprites[j][i].SetTexture(*entitySheet);
+				entitySprites[j][i].SetSubRect(sf::Rect<int>(j * ENTITY_WIDTH, i * ENTITY_HEIGHT, ENTITY_WIDTH, ENTITY_HEIGHT));
+			}
+		}
+		return true;
+	}
+	else
+		return false;
+	
+	/*if(entitySheet.LoadFromFile(sName))
 	{
 		// Cut the entity sheet
 		for(int i = 0; i < 4; i++)
@@ -41,7 +58,7 @@ bool Entity::loadEntitySheet(string sName)
 		return true;
 	}
 	else
-		return false;
+		return false;*/
 
 }
 

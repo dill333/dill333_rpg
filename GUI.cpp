@@ -78,7 +78,6 @@ void GUI::mousePushed(sf::RenderWindow& window)
 GUI::~GUI()
 {
 
-	delete player;
 	delete inv;
 
 }
