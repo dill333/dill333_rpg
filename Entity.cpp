@@ -43,22 +43,6 @@ bool Entity::loadEntitySheet(string sName)
 	}
 	else
 		return false;
-	
-	/*if(entitySheet.LoadFromFile(sName))
-	{
-		// Cut the entity sheet
-		for(int i = 0; i < 4; i++)
-		{
-			for(int j = 0; j < 3; j++)
-			{
-				entitySprites[j][i].SetTexture(entitySheet);
-				entitySprites[j][i].SetSubRect(sf::Rect<int>(j * ENTITY_WIDTH, i * ENTITY_HEIGHT, ENTITY_WIDTH, ENTITY_HEIGHT));
-			}
-		}
-		return true;
-	}
-	else
-		return false;*/
 
 }
 
