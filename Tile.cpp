@@ -2,36 +2,75 @@
 
 Tile::Tile()
 {
-
-	rect = sf::Rect<int>(0, 0, TILE_WIDTH, TILE_HEIGHT);
-	tileType = 0;
-	blocked = false;
-
 }
 
-Tile::Tile(int x, int y, int tt, bool b)
+Tile::Tile(int tileX, int tileY, int ttx, int tty, int p)
 {
 
-	rect = sf::Rect<int>(x, y, TILE_WIDTH, TILE_HEIGHT);
-	tileType = tt;
-	blocked = b;
+	// Set up the tile
+	rect = sf::Rect<int>(tileX * TILE_WIDTH, tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+	tileTypeX = ttx;
+	tileTypeY = tty;
+	prop = p;
+	teleX = 0;
+	teleY = 0;
 
 }
 
-int Tile::getTileType()
+void Tile::create(int tileX, int tileY, int ttx, int tty, int p)
 {
 
-	return tileType;
+	// Set up the tile
+	rect = sf::Rect<int>(tileX * TILE_WIDTH, tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+	tileTypeX = ttx;
+	tileTypeY = tty;
+	prop = p;
+	teleX = 0;
+	teleY = 0;
 
 }
 
-bool Tile::getBlocked()
+int Tile::getTileTypeX()
 {
 
-	return blocked;
+	return tileTypeX;
 
 }
 
+int Tile::getTileTypeY()
+{
+
+	return tileTypeY;
+
+}
+
+sf::Rect<int> Tile::getRect()
+{
+
+	return rect;
+
+}
+
+int Tile::getProp()
+{
+
+	return prop;
+
+}
+
+int Tile::getTeleX()
+{
+
+	return teleX;
+
+}
+
+int Tile::getTeleY()
+{
+
+	return teleY;
+
+}
 
 Tile::~Tile()
 {
@@ -40,7 +79,11 @@ Tile::~Tile()
 ostream &operator<<(ostream &stream, Tile t)
 {
 
-	stream<<t.rect.Left<<" "<<t.rect.Top<<" "<<t.tileType<<" "<<t.blocked<<"\n";
+	stream<<t.rect.Left<<" "<<t.rect.Top<<" "<<t.tileTypeX<<" "<<t.tileTypeY<<" "<<t.prop;
+	if(t.prop == Tile::TP_TELEPORT)
+		stream<<" "<<t.teleX<<" "<<t.teleY;
+
+	stream<<"\n";
 
 	return stream;
 
@@ -49,7 +92,9 @@ ostream &operator<<(ostream &stream, Tile t)
 istream &operator>>(istream &stream, Tile &t)
 {
 
-	stream>>t.rect.Left>>t.rect.Top>>t.tileType>>t.blocked;
+	stream>>t.rect.Left>>t.rect.Top>>t.tileTypeX>>t.tileTypeY>>t.prop;
+	if(t.prop == Tile::TP_TELEPORT)
+		stream>>t.teleX>>t.teleY;
 
 	return stream;
 

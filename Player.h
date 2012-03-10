@@ -1,14 +1,35 @@
 #pragma once
 
-#include "Entity.h"
+#include <SFML/Graphics.hpp>
+#include <string>
+#include "Tile.h"
+#include "TextureManager.h"
 
-class Player : public Entity
+using namespace std;
+
+class Player
 {
-	bool canAttack;
+	sf::Sprite sprites[3][4];
+	sf::Sprite sprite;
+	sf::Rect<int> rect;		// Where the player actually is
+	int tileX;				// Where the player is going
+	int tileY;				// ^
+	int dir;
+	int frame;
+	bool moving;
+	void updateSprite();
 public:
+	static const enum direction{DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT};
+	static const int MAX_FRAME = 3;
 	Player();
-	Player(string shName, int tiX, int tiY);
-	virtual void move();
+	Player(string sheetName, int tX, int tY);
+	void tick();
+	void draw(sf::RenderWindow *window);
+	int getTileX();
+	int getTileY();
+	void setTileX(int tX);
+	void setTileY(int tY);
+	void moveBack();
 	~Player();
 };
 

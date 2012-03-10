@@ -1,118 +1,184 @@
 #include "Player.h"
-#include <iostream>
 
-Player::Player() : Entity("playersheet.png", 0, 0)
+Player::Player()
 {
-
-	// Update the sprite
-	updateSprite();
-
-	canAttack = true;
-
 }
 
-Player::Player(string shName, int tiX, int tiY) : Entity(shName, tiX, tiY)
+Player::Player(string sheetName, int tX, int tY)
 {
 
-	// Update the sprite
-	updateSprite();
+	// Initialize
+	tileX = tX;
+	tileY = tY;
+	moving = false;
+	dir = DIR_LEFT;
+	frame = 0;
+	rect.Left = tileX * Tile::TILE_WIDTH;
+	rect.Top = tileY * Tile::TILE_HEIGHT;
+	rect.Width = Tile::TILE_WIDTH;
+	rect.Height = Tile::TILE_HEIGHT;
 
-	canAttack = true;
-
-}
-
-void Player::move()
-{
-
-	// Move the player
-	if(canMove)
+	// Set up the sprites and cut them out
+	for(int i = 0; i < MAX_FRAME; i++)
 	{
-		if(sf::Keyboard::IsKeyPressed(sf::Keyboard::Left) || sf::Keyboard::IsKeyPressed(sf::Keyboard::A))
+		for(int j = 0; j < 4; j++)
 		{
-			tileX--;
-			dir = left;
-			canMove = false;
-			continueMoving();
+			sprites[i][j].SetTexture(*TextureManager::getTexture(sheetName));
+			sprites[i][j].SetSubRect(sf::Rect<int>(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT, Tile::TILE_WIDTH, Tile::TILE_HEIGHT));
 		}
-		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::Right) || sf::Keyboard::IsKeyPressed(sf::Keyboard::D))
+	}
+
+	// Set up the current sprite
+	updateSprite();
+
+}
+
+void Player::updateSprite()
+{
+
+	// Set up the current sprite
+	sprite = sprites[frame][dir];
+	sprite.SetX(rect.Left);
+	sprite.SetY(rect.Top);
+
+}
+
+void Player::tick()
+{
+
+	// Change the frame and movement
+	if(moving)
+	{
+		frame++;
+		if(frame >= MAX_FRAME)
+			frame = 0;
+		
+		// Move the player
+		switch(dir)
 		{
-			tileX++;
-			dir = right;
-			canMove = false;
-			continueMoving();
+		case DIR_UP:
+			rect.Top -= Tile::TILE_HEIGHT / 8;
+			break;
+		case DIR_DOWN:
+			rect.Top += Tile::TILE_HEIGHT / 8;
+			break;
+		case DIR_LEFT:
+			rect.Left -= Tile::TILE_WIDTH / 8;
+			break;
+		case DIR_RIGHT:
+			rect.Left += Tile::TILE_WIDTH / 8;
+			break;
 		}
-		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::Up) || sf::Keyboard::IsKeyPressed(sf::Keyboard::W))
+
+		// Check to see if we need to stop moving
+		if((rect.Left == tileX * Tile::TILE_WIDTH) && (rect.Top == tileY * Tile::TILE_HEIGHT))
+			moving = false;
+	}
+	else
+	{
+		// Reset everything
+		frame = 0;
+		rect.Left = tileX * Tile::TILE_WIDTH;
+		rect.Top = tileY * Tile::TILE_HEIGHT;
+
+		// Handle keypresses
+		if(sf::Keyboard::IsKeyPressed(sf::Keyboard::W))
 		{
 			tileY--;
-			dir = up;
-			canMove = false;
-			continueMoving();
+			dir = DIR_UP;
+			moving = true;
 		}
-		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::Down) || sf::Keyboard::IsKeyPressed(sf::Keyboard::S))
+		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::S))
 		{
 			tileY++;
-			dir = down;
-			canMove = false;
-			continueMoving();
+			dir = DIR_DOWN;
+			moving = true;
 		}
-		else
-			frame = 0;
+		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::A))
+		{
+			tileX--;
+			dir = DIR_LEFT;
+			moving = true;
+		}
+		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::D))
+		{
+			tileX++;
+			dir = DIR_RIGHT;
+			moving = true;
+		}
 	}
-	else
-		continueMoving();
 
-	// Make sure their in the bounds
-	if(rect.Left < 0)
-		rect.Left = 0;
-	if(rect.Left > 768)
-		rect.Left = 768;
-	if(rect.Top < 0)
-		rect.Top = 0;
-	if(rect.Top > 608)
-		rect.Top = 608;
-
-	if(tileX < 0)
-		tileX = 0;
-	if(tileX > 24)
-		tileX = 24;
-	if(tileY < 0)
-		tileY = 0;
-	if(tileY > 19)
-		tileY = 19;
-
-	// 32x32 snap
-	if(((rect.Left % 32) == 0) && ((rect.Top % 32) == 0))
-		canMove = true;
-	else
-		canMove = false;
-
-	// Update the sprite
 	updateSprite();
-
-	// Used for debugging
-	if(sf::Keyboard::IsKeyPressed(sf::Keyboard::X))
-		hurt(1);
-
-	// See if the player wants to attack
-	if((sf::Keyboard::IsKeyPressed(sf::Keyboard::Space)) && canAttack)
-	{
-		attacking = true;
-		canAttack = false;
-		tick = 0;
-	}
-	else
-		attacking = false;
-
-	// Limit the attack speed
-	if(tick > 10)
-		canAttack = true;
-
-	// Don't let tick get too big
-	if(tick > 300)
-		tick = 11;
 
 }
 
+void Player::draw(sf::RenderWindow *window)
+{
+
+	// Draw it
+	window->Draw(sprite);
+
+}
+
+int Player::getTileX()
+{
+
+	return tileX;
+
+}
+
+int Player::getTileY()
+{
+
+	return tileY;
+
+}
+
+void Player::setTileX(int tX)
+{
+
+	tileX = tX;
+	rect.Left = tileX * Tile::TILE_WIDTH;
+	rect.Top = tileX * Tile::TILE_HEIGHT;
+	moving = false;
+
+}
+
+void Player::setTileY(int tY)
+{
+
+	tileY = tY;
+	rect.Left = tileX * Tile::TILE_WIDTH;
+	rect.Top = tileX * Tile::TILE_HEIGHT;
+	moving = false;
+
+}
+
+void Player::moveBack()
+{
+
+	// Move the player back
+	switch(dir)
+	{
+	case DIR_UP:
+		tileY++;
+		break;
+	case DIR_DOWN:
+		tileY--;
+		break;
+	case DIR_LEFT:
+		tileX++;
+		break;
+	case DIR_RIGHT:
+		tileX--;
+		break;
+	}
+
+	rect.Left = tileX * Tile::TILE_WIDTH;
+	rect.Top = tileY * Tile::TILE_HEIGHT;
+	moving = false;
+
+}
 
 Player::~Player()
 {

@@ -1,37 +1,19 @@
 #include "Map.h"
 
-// TODO: Make this load the maps from the RPGMapEditor
-
-bool Map::loadTileSheet()
+Map::Map()
 {
 
-	// Load the tile sheet
-	if(tileSheet.LoadFromFile("tilesheet.png"))
-	{
-		// Cut up the tile sprites
-		for(int i = 0; i < 6; i++)
-		{
-			tileTypes[i].SetTexture(tileSheet);
-			tileTypes[i].SetSubRect(sf::Rect<int>(i * TILE_WIDTH, 0, TILE_WIDTH, TILE_HEIGHT));
-		}
-		return true;
-	}
-	else
-		return false;
+	// If nothing goes wrong, this will still be true at the end
+	loaded = true;
 
-}
-
-bool Map::loadMap()
-{
-
-	// Open the file
+	// Open the file we need
 	ifstream file;
 	file.open("room1.map");
 
 	// Set up all of the tiles
-	for(int i = 0; i < 20; i++)
+	for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
 	{
-		for(int j = 0; j < 25; j++)
+		for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
 		{
 			if(file.good())
 				file>>tiles[j][i];
@@ -39,7 +21,7 @@ bool Map::loadMap()
 			{
 				// EOF too early
 				file.close();
-				return loadDefaultMap();
+				loaded = false;
 			}
 		}
 	}
@@ -47,235 +29,143 @@ bool Map::loadMap()
 	// Close the file
 	file.close();
 
-	return true;
+	// Load the tile types
+	sf::Texture *tileSheetTexture = TextureManager::getTexture("tilesheet.png");
+	if(tileSheetTexture != NULL)
+	{
+		// Load the tile types
+		for(int i = 0; i < NUM_TTX; i++)
+		{
+			for(int j = 0; j < NUM_TTY; j++)
+			{
+				tileTypes[i][j].SetTexture(*tileSheetTexture);
+				tileTypes[i][j].SetSubRect(sf::Rect<int>(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT, Tile::TILE_WIDTH, Tile::TILE_HEIGHT));
+			}
+		}
+	}
+	else
+		loadedTileSheet = false;
 
-}
-
-bool Map::loadDefaultMap()
-{
-
-	// Set up all of the tiles
-	for(int i = 0; i < 20; i++)
-		for(int j = 0; j < 25; j++)
-			tiles[j][i] = Tile(j * 32, i * 32, tt_grass, false);
-
-	return save();
-
-}
-
-Map::Map()
-{
-	
-	// Initialize
-	loaded = loadTileSheet();
-	loaded &= loadMap();
-	loaded &= mapTexture.Create(800, 640);
-
-	// Clear the map texture
+	// Set up the map texture
+	mapTexture.Create(MAP_WIDTH, MAP_HEIGHT);
 	mapTexture.Clear();
 
-	// Draw all of the tiles to the texture
-	for(int i = 0; i < 25; i++)
+	if(loaded)
 	{
-		for(int j = 0; j < 20; j++)
+		for(int i = 0; i < MAP_WIDTH / Tile::TILE_WIDTH; i++)
 		{
-			int tt = tiles[i][j].getTileType();
-			sf::Sprite temp = tileTypes[tt];
-			temp.SetX(i * 32);
-			temp.SetY(j * 32);
-			mapTexture.Draw(temp);
+			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
+			{
+				// Get tile info
+				int ttx = tiles[i][j].getTileTypeX();
+				int tty = tiles[i][j].getTileTypeY();
+				sf::Rect<int> rect = tiles[i][j].getRect();
+				sf::Sprite temp = tileTypes[ttx][tty];
+
+				// Make sure whoever edited this file knew what they were doing
+				if(((i * Tile::TILE_WIDTH) != rect.Left) || ((j * Tile::TILE_HEIGHT) != rect.Top))
+					loaded = false;
+
+				// Move the sprite to where we need to draw it
+				temp.SetPosition(rect.Left, rect.Top);
+				mapTexture.Draw(temp);
+			}
 		}
+		mapTexture.Display();
+		mapSprite.SetTexture(mapTexture.GetTexture());
 	}
 	
-	// Done drawing, make the texture visible
-	mapTexture.Display();
-
-	// Set up the map sprite
-	mapSprite = sf::Sprite(mapTexture.GetTexture());
-
-}
-
-bool Map::getLoaded()
-{
-
-	return loaded;
-
-}
-
-Tile Map::getTile(int i, int j)
-{
-
-	return tiles[i][j];
-
-}
-
-sf::Sprite Map::getTileTypeSprite(int i)
-{
-
-	return tileTypes[i];
-
-}
-
-void Map::checkCollisions(int k)
-{
-
-	int tx = entities[k]->getTileX();
-	int ty = entities[k]->getTileY();
-			
-	// If they hit a blocked tile
-	if(tiles[tx][ty].getBlocked())
-		entities[k]->moveBack();
-			
-	// If they hit another entity
-	for(int i = 0; i < entities.size(); i++)
+	if(!loaded)
 	{
-		if(i != k)
+		// Something went wrong, lets make the default map
+		for(int i = 0; i < MAP_WIDTH / Tile::TILE_WIDTH; i++)
 		{
-			int ttx = entities[i]->getTileX();
-			int tty = entities[i]->getTileY();
-
-			if((tx == ttx) && (ty == tty))
-				entities[k]->moveBack();
-		}	
-	}
-}
-
-void Map::addEntity(Entity *e)
-{
-
-	entities.push_back(e);
-
-}
-
-Entity* Map::getEnt(int x, int y)
-{
-
-	for(int i = 0; i < entities.size(); i++)
-	{
-		int tx = entities[i]->getTileX();
-		int ty = entities[i]->getTileY();
-
-		// Check to see if the entity is in the location
-		if((tx == x) && (ty == y))
-			return entities[i];
-	}
-
-	return NULL;
-
-}
-
-void Map::attack(int i)
-{
-
-	Entity *e = entities[i];
-	int dir = e->getDir();
-	int tx = e->getTileX();
-	int ty = e->getTileY();
-
-	Entity *e2 = NULL;
-
-	// Attack wherever the entity is facing
-	switch(dir)
-	{
-	case up:
-		e2 = getEnt(tx, ty - 1);
-		if(e2 != NULL)
-			e2->hurt(e->getAttackStrength());
-		break;
-	case down:
-		e2 = getEnt(tx, ty + 1);
-		if(e2 != NULL)
-			e2->hurt(e->getAttackStrength());
-		break;
-	case left:
-		e2 = getEnt(tx - 1, ty);
-		if(e2 != NULL)
-			e2->hurt(e->getAttackStrength());
-		break;
-	case right:
-		e2 = getEnt(tx + 1, ty);
-		if(e2 != NULL)
-			e2->hurt(e->getAttackStrength());
-		break;
-	}
-
-}
-
-void Map::doLogic()
-{
-
-	for(int i = 0; i < entities.size(); i++)
-	{
-		// Let this entity move
-		entities[i]->move();
-
-		// Check collisions
-		checkCollisions(i);
-
-		// See if this entity is attacking
-		if(entities[i]->getAttacking())
-			attack(i);
-
-		// If this entity is dead, remove it
-		if(entities[i]->getDead())
-		{
-			delete entities[i];
-			entities.erase(entities.begin() + i);
+			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
+			{
+				tiles[i][j].create(i, j, 2, 0, Tile::TP_NONE);
+				sf::Sprite temp = tileTypes[2][0];
+				temp.SetPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
+				mapTexture.Draw(temp);
+			}
 		}
+		// Save over the corrupt map with the default one
+		save();
 	}
 
-}
+	mapTexture.Display();
+	mapSprite.SetTexture(mapTexture.GetTexture());
 
-void Map::draw(sf::RenderWindow& window)
-{
-
-	// Draw the map
-	window.Draw(mapSprite);
-
-	// Draw the items
-	for(int i = 0; i < items.size(); i++)
-		items.at(i)->draw(window);
-
-	// Draw the entities
-	for(int i = 0; i < entities.size(); i++)
-		entities.at(i)->draw(window);
-
-	// Draw the entity health bars
-	for(int i = 0; i < entities.size(); i++)
-			entities[i]->drawHealthBar(window);
+	p = new Player("playersheet.png", 5, 5);
 
 }
 
-void Map::addItem(Item *i)
+void Map::save()
 {
 
-	items.push_back(i);
-
-}
-
-bool Map::save()
-{
-
+	// The file we will use
 	ofstream file;
 	file.open("room1.map");
 
-	for(int i = 0; i < 20; i++)
-		for(int j = 0; j < 25; j++)
-			file<<tiles[j][i];
+	// Set up all of the tiles
+	for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
+		for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
+				file<<tiles[j][i];
 
+	// Close the file
 	file.close();
 
-	return true;
+	loaded = true;
+
+}
+
+bool Map::isLoaded()
+{
+
+	return(loaded && loadedTileSheet);
+
+}
+
+void Map::checkCollisions()
+{
+
+	// Make sure the player isn't trying to go offscreen
+	if((p->getTileY() < 0) || (p->getTileY() >= MAP_HEIGHT / Tile::TILE_HEIGHT) || (p->getTileX() < 0) || (p->getTileX() >= MAP_WIDTH / Tile::TILE_WIDTH))
+		p->moveBack();
+
+	// Make sure the player isn't trying to go through a blocked tile
+	switch(tiles[p->getTileX()][p->getTileY()].getProp())
+	{
+	case Tile::TP_BLOCKED:
+		p->moveBack();
+		break;
+	case Tile::TP_TELEPORT:
+		p->setTileX(tiles[p->getTileX()][p->getTileY()].getTeleX());
+		p->setTileY(tiles[p->getTileX()][p->getTileY()].getTeleY());
+		break;
+	}
+
+}
+
+void Map::tick()
+{
+
+	checkCollisions();
+	p->tick();
+
+}
+
+void Map::draw(sf::RenderWindow *window)
+{
+
+	// Draw the map sprite
+	window->Draw(mapSprite);
+	p->draw(window);
 
 }
 
 Map::~Map()
 {
 
-	// Delete the memory we allocated for the entities
-	for(int i = 0; i < entities.size(); i++)
-		delete entities[i];
-
-	entities.clear();
+	delete p;
 
 }
