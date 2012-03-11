@@ -3,6 +3,10 @@
 #include "Tile.h"
 #include "TextureManager.h"
 #include "Player.h"
+#include <string>
+#include <sstream>
+
+using namespace std;
 
 class Map
 {
@@ -17,9 +21,12 @@ class Map
 	bool loaded;
 	bool loadedTileSheet;
 	Player *p;
+	string mapName;
 	void checkCollisions();
+	void updateSprite();
 public:
 	Map();
+	void load(string mN);
 	void save();
 	bool isLoaded();
 	void tick();

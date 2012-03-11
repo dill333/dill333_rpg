@@ -5,29 +5,7 @@ Map::Map()
 
 	// If nothing goes wrong, this will still be true at the end
 	loaded = true;
-
-	// Open the file we need
-	ifstream file;
-	file.open("room1.map");
-
-	// Set up all of the tiles
-	for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
-	{
-		for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
-		{
-			if(file.good())
-				file>>tiles[j][i];
-			else
-			{
-				// EOF too early
-				file.close();
-				loaded = false;
-			}
-		}
-	}
-
-	// Close the file
-	file.close();
+	loadedTileSheet = true;
 
 	// Load the tile types
 	sf::Texture *tileSheetTexture = TextureManager::getTexture("tilesheet.png");
@@ -48,10 +26,55 @@ Map::Map()
 
 	// Set up the map texture
 	mapTexture.Create(MAP_WIDTH, MAP_HEIGHT);
+	load("room1.map");
+
+	p = new Player("playersheet.png", 5, 5);
+
+}
+
+void Map::load(string mN)
+{
+
+	// Set the map name
+	mapName = mN;
+
+	// Open the file we need
+	ifstream file;
+	file.open(mapName);
+
+	// Set up all of the tiles
+	for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
+	{
+		for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
+		{
+			if(file.good())
+				file>>tiles[j][i];
+			else
+			{
+				// EOF too early
+				file.close();
+				loaded = false;
+			}
+		}
+	}
+
+	// Close the file
+	file.close();
+
+	updateSprite();
+
+}
+
+void Map::updateSprite()
+{
+
+	// Clear the map
 	mapTexture.Clear();
 
+	// Make sure we have a map
 	if(loaded)
 	{
+		// Set up the map
 		for(int i = 0; i < MAP_WIDTH / Tile::TILE_WIDTH; i++)
 		{
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
@@ -60,7 +83,14 @@ Map::Map()
 				int ttx = tiles[i][j].getTileTypeX();
 				int tty = tiles[i][j].getTileTypeY();
 				sf::Rect<int> rect = tiles[i][j].getRect();
-				sf::Sprite temp = tileTypes[ttx][tty];
+				sf::Sprite temp;
+				if((ttx < 0) || (ttx > NUM_TTX) || (tty < 0) || (tty > NUM_TTY))
+				{
+					loaded = false;
+					temp = tileTypes[2][0];
+				}
+				else
+					temp = tileTypes[ttx][tty];
 
 				// Make sure whoever edited this file knew what they were doing
 				if(((i * Tile::TILE_WIDTH) != rect.Left) || ((j * Tile::TILE_HEIGHT) != rect.Top))
@@ -74,7 +104,7 @@ Map::Map()
 		mapTexture.Display();
 		mapSprite.SetTexture(mapTexture.GetTexture());
 	}
-	
+
 	if(!loaded)
 	{
 		// Something went wrong, lets make the default map
@@ -95,8 +125,6 @@ Map::Map()
 	mapTexture.Display();
 	mapSprite.SetTexture(mapTexture.GetTexture());
 
-	p = new Player("playersheet.png", 5, 5);
-
 }
 
 void Map::save()
@@ -104,7 +132,7 @@ void Map::save()
 
 	// The file we will use
 	ofstream file;
-	file.open("room1.map");
+	file.open(mapName);
 
 	// Set up all of the tiles
 	for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
@@ -139,6 +167,11 @@ void Map::checkCollisions()
 		p->moveBack();
 		break;
 	case Tile::TP_TELEPORT:
+		int mn = tiles[p->getTileX()][p->getTileY()].getTeleMapNum();
+		stringstream s;
+		s<<"room"<<mn<<".map";
+		if(s.str().compare(mapName))
+			load(s.str());
 		p->setTileXY(tiles[p->getTileX()][p->getTileY()].getTeleX(), tiles[p->getTileX()][p->getTileY()].getTeleY());
 		break;
 	}
