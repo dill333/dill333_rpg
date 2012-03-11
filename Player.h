@@ -27,8 +27,7 @@ public:
 	void draw(sf::RenderWindow *window);
 	int getTileX();
 	int getTileY();
-	void setTileX(int tX);
-	void setTileY(int tY);
+	void setTileXY(int tX, int tY);
 	void moveBack();
 	~Player();
 };

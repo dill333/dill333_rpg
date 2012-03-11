@@ -134,22 +134,13 @@ int Player::getTileY()
 
 }
 
-void Player::setTileX(int tX)
+void Player::setTileXY(int tX, int tY)
 {
 
 	tileX = tX;
-	rect.Left = tileX * Tile::TILE_WIDTH;
-	rect.Top = tileX * Tile::TILE_HEIGHT;
-	moving = false;
-
-}
-
-void Player::setTileY(int tY)
-{
-
 	tileY = tY;
 	rect.Left = tileX * Tile::TILE_WIDTH;
-	rect.Top = tileX * Tile::TILE_HEIGHT;
+	rect.Top = tileY * Tile::TILE_HEIGHT;
 	moving = false;
 
 }

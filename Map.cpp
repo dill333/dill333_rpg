@@ -139,8 +139,7 @@ void Map::checkCollisions()
 		p->moveBack();
 		break;
 	case Tile::TP_TELEPORT:
-		p->setTileX(tiles[p->getTileX()][p->getTileY()].getTeleX());
-		p->setTileY(tiles[p->getTileX()][p->getTileY()].getTeleY());
+		p->setTileXY(tiles[p->getTileX()][p->getTileY()].getTeleX(), tiles[p->getTileX()][p->getTileY()].getTeleY());
 		break;
 	}
 
