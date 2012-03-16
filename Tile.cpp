@@ -88,7 +88,7 @@ Tile::~Tile()
 ostream &operator<<(ostream &stream, Tile t)
 {
 
-	stream<<t.rect.Left<<" "<<t.rect.Top<<" "<<t.tileTypeX<<" "<<t.tileTypeY<<" "<<t.prop;
+	stream<<t.rect.left<<" "<<t.rect.top<<" "<<t.tileTypeX<<" "<<t.tileTypeY<<" "<<t.prop;
 	if(t.prop == Tile::TP_TELEPORT)
 		stream<<" "<<t.teleMapNum<<" "<<t.teleX<<" "<<t.teleY;
 
@@ -101,7 +101,7 @@ ostream &operator<<(ostream &stream, Tile t)
 istream &operator>>(istream &stream, Tile &t)
 {
 
-	stream>>t.rect.Left>>t.rect.Top>>t.tileTypeX>>t.tileTypeY>>t.prop;
+	stream>>t.rect.left>>t.rect.top>>t.tileTypeX>>t.tileTypeY>>t.prop;
 	if(t.prop == Tile::TP_TELEPORT)
 		stream>>t.teleMapNum>>t.teleX>>t.teleY;
 

@@ -19,7 +19,7 @@ sf::Texture *TextureManager::getTexture(string str)
 
 	// Time to load the new texture
 	sf::Texture *texture = new sf::Texture();
-	if(texture->LoadFromFile(str))
+	if(texture->loadFromFile(str))
 	{
 		loaded.push_back(str);
 		textures.push_back(texture);

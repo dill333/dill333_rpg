@@ -13,18 +13,18 @@ Player::Player(string sheetName, int tX, int tY)
 	moving = false;
 	dir = DIR_LEFT;
 	frame = 0;
-	rect.Left = tileX * Tile::TILE_WIDTH;
-	rect.Top = tileY * Tile::TILE_HEIGHT;
-	rect.Width = Tile::TILE_WIDTH;
-	rect.Height = Tile::TILE_HEIGHT;
+	rect.left = tileX * Tile::TILE_WIDTH;
+	rect.top = tileY * Tile::TILE_HEIGHT;
+	rect.width = Tile::TILE_WIDTH;
+	rect.height = Tile::TILE_HEIGHT;
 
 	// Set up the sprites and cut them out
 	for(int i = 0; i < MAX_FRAME; i++)
 	{
 		for(int j = 0; j < 4; j++)
 		{
-			sprites[i][j].SetTexture(*TextureManager::getTexture(sheetName));
-			sprites[i][j].SetSubRect(sf::Rect<int>(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT, Tile::TILE_WIDTH, Tile::TILE_HEIGHT));
+			sprites[i][j].setTexture(*TextureManager::getTexture(sheetName));
+			sprites[i][j].setTextureRect(sf::Rect<int>(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT, Tile::TILE_WIDTH, Tile::TILE_HEIGHT));
 		}
 	}
 
@@ -38,8 +38,7 @@ void Player::updateSprite()
 
 	// Set up the current sprite
 	sprite = sprites[frame][dir];
-	sprite.SetX(rect.Left);
-	sprite.SetY(rect.Top);
+	sprite.setPosition(rect.left, rect.top);
 
 }
 
@@ -57,50 +56,50 @@ void Player::tick()
 		switch(dir)
 		{
 		case DIR_UP:
-			rect.Top -= Tile::TILE_HEIGHT / 8;
+			rect.top -= Tile::TILE_HEIGHT / 8;
 			break;
 		case DIR_DOWN:
-			rect.Top += Tile::TILE_HEIGHT / 8;
+			rect.top += Tile::TILE_HEIGHT / 8;
 			break;
 		case DIR_LEFT:
-			rect.Left -= Tile::TILE_WIDTH / 8;
+			rect.left -= Tile::TILE_WIDTH / 8;
 			break;
 		case DIR_RIGHT:
-			rect.Left += Tile::TILE_WIDTH / 8;
+			rect.left += Tile::TILE_WIDTH / 8;
 			break;
 		}
 
 		// Check to see if we need to stop moving
-		if((rect.Left == tileX * Tile::TILE_WIDTH) && (rect.Top == tileY * Tile::TILE_HEIGHT))
+		if((rect.left == tileX * Tile::TILE_WIDTH) && (rect.top == tileY * Tile::TILE_HEIGHT))
 			moving = false;
 	}
 	else
 	{
 		// Reset everything
 		frame = 0;
-		rect.Left = tileX * Tile::TILE_WIDTH;
-		rect.Top = tileY * Tile::TILE_HEIGHT;
+		rect.left = tileX * Tile::TILE_WIDTH;
+		rect.top = tileY * Tile::TILE_HEIGHT;
 
 		// Handle keypresses
-		if(sf::Keyboard::IsKeyPressed(sf::Keyboard::W))
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			tileY--;
 			dir = DIR_UP;
 			moving = true;
 		}
-		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::S))
+		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
 			tileY++;
 			dir = DIR_DOWN;
 			moving = true;
 		}
-		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::A))
+		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
 			tileX--;
 			dir = DIR_LEFT;
 			moving = true;
 		}
-		else if(sf::Keyboard::IsKeyPressed(sf::Keyboard::D))
+		else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
 			tileX++;
 			dir = DIR_RIGHT;
@@ -116,7 +115,7 @@ void Player::draw(sf::RenderWindow *window)
 {
 
 	// Draw it
-	window->Draw(sprite);
+	window->draw(sprite);
 
 }
 
@@ -139,8 +138,8 @@ void Player::setTileXY(int tX, int tY)
 
 	tileX = tX;
 	tileY = tY;
-	rect.Left = tileX * Tile::TILE_WIDTH;
-	rect.Top = tileY * Tile::TILE_HEIGHT;
+	rect.left = tileX * Tile::TILE_WIDTH;
+	rect.top = tileY * Tile::TILE_HEIGHT;
 	moving = false;
 
 }
@@ -165,8 +164,8 @@ void Player::moveBack()
 		break;
 	}
 
-	rect.Left = tileX * Tile::TILE_WIDTH;
-	rect.Top = tileY * Tile::TILE_HEIGHT;
+	rect.left = tileX * Tile::TILE_WIDTH;
+	rect.top = tileY * Tile::TILE_HEIGHT;
 	moving = false;
 
 }
