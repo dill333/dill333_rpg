@@ -11,7 +11,6 @@ using namespace std;
 class Player
 {
 	sf::Sprite sprites[3][4];
-	sf::Sprite sprite;
 	sf::Rect<int> rect;		// Where the player actually is
 	int tileX;				// Where the player is going
 	int tileY;				// ^

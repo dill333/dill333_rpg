@@ -37,8 +37,7 @@ void Player::updateSprite()
 {
 
 	// Set up the current sprite
-	sprite = sprites[frame][dir];
-	sprite.setPosition(rect.left, rect.top);
+	sprites[frame][dir].setPosition(rect.left, rect.top);
 
 }
 
@@ -115,7 +114,7 @@ void Player::draw(sf::RenderWindow *window)
 {
 
 	// Draw it
-	window->draw(sprite);
+	window->draw(sprites[frame][dir]);
 
 }
 
