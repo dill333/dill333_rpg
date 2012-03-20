@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TILE_H
+#define TILE_H
 
 #include <fstream>
 #include <SFML/Graphics.hpp>
@@ -33,3 +34,5 @@ public:
 	friend ostream &operator<<(ostream &stream, Tile t);
 	friend istream &operator>>(istream &stream, Tile &t);
 };
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAP_H
+#define MAP_H
 
 #include "Tile.h"
 #include "TextureManager.h"
@@ -33,3 +34,5 @@ public:
 	void draw(sf::RenderWindow *window);
 	~Map();
 };
+
+#endif
