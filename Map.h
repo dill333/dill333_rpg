@@ -4,6 +4,7 @@
 #include "Tile.h"
 #include "TextureManager.h"
 #include "Player.h"
+#include "Monster.h"
 #include <string>
 #include <sstream>
 
@@ -22,6 +23,7 @@ class Map
 	bool loaded;
 	bool loadedTileSheet;
 	Player *p;
+	Monster *m;
 	string mapName;
 	void checkCollisions();
 	void updateSprite();

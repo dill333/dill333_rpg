@@ -29,6 +29,7 @@ Map::Map()
 	load("room1.map");
 
 	p = new Player("playersheet.png", 5, 5);
+	m = new Monster("monstersheet.png", 10, 10);
 
 }
 
@@ -156,9 +157,17 @@ bool Map::isLoaded()
 void Map::checkCollisions()
 {
 
+	// Make sure the player and monster aren't trying to go through each other
+	// This isn't working properly, must find a way to fix it
+	if((m->getTileY() == p->getTileY()) && (m->getTileX() == p->getTileX()))
+		p->moveBack();
+
 	// Make sure the player isn't trying to go offscreen
 	if((p->getTileY() < 0) || (p->getTileY() >= MAP_HEIGHT / Tile::TILE_HEIGHT) || (p->getTileX() < 0) || (p->getTileX() >= MAP_WIDTH / Tile::TILE_WIDTH))
 		p->moveBack();
+	// Make sure the monster isn't trying to go offscreen
+	if((m->getTileY() < 0) || (m->getTileY() >= MAP_HEIGHT / Tile::TILE_HEIGHT) || (m->getTileX() < 0) || (m->getTileX() >= MAP_WIDTH / Tile::TILE_WIDTH))
+		m->moveBack();
 
 	// Make sure the player isn't trying to go through a blocked tile
 	switch(tiles[p->getTileX()][p->getTileY()].getProp())
@@ -175,15 +184,23 @@ void Map::checkCollisions()
 		p->setTileXY(tiles[p->getTileX()][p->getTileY()].getTeleX(), tiles[p->getTileX()][p->getTileY()].getTeleY());
 		break;
 	}
+	// The monster will not teleport
+	switch(tiles[m->getTileX()][m->getTileY()].getProp())
+	{
+	case Tile::TP_BLOCKED:
+		m->moveBack();
+		break;
+	}
 
 }
 
 void Map::tick()
 {
-
+	
 	checkCollisions();
 	p->tick();
-
+	m->tick();
+	
 }
 
 void Map::draw(sf::RenderWindow *window)
@@ -192,6 +209,7 @@ void Map::draw(sf::RenderWindow *window)
 	// Draw the map sprite
 	window->draw(mapSprite);
 	p->draw(window);
+	m->draw(window);
 
 }
 
@@ -199,5 +217,6 @@ Map::~Map()
 {
 
 	delete p;
+	delete m;
 
 }
