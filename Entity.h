@@ -8,6 +8,8 @@
 
 using namespace std;
 
+class Map;
+
 class Entity
 {
 protected:
@@ -20,11 +22,13 @@ protected:
 	bool moving;
 	void updateSprite();
 	virtual void move() = 0;
+	Map *m;
 public:
 	static const enum direction{DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT};
 	static const int MAX_FRAME = 3;
 	Entity();
 	Entity(string sheetName, int tX, int tY);
+	void setMap(Map *ma);
 	virtual void tick();
 	void draw(sf::RenderWindow *window);
 	int getTileX();

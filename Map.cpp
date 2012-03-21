@@ -29,7 +29,9 @@ Map::Map()
 	load("room1.map");
 
 	p = new Player("playersheet.png", 5, 5);
+	p->setMap(this);
 	m = new Monster("monstersheet.png", 10, 10);
+	m->setMap(this);
 
 }
 
@@ -154,42 +156,46 @@ bool Map::isLoaded()
 
 }
 
-void Map::checkCollisions()
+void Map::checkCollisions(Entity *e)
 {
 
-	// Make sure the player and monster aren't trying to go through each other
-	// This isn't working properly, must find a way to fix it
-	if((m->getTileY() == p->getTileY()) && (m->getTileX() == p->getTileX()))
-		p->moveBack();
+	// Make sure the entity does not try to move off the map
+	if((e->getTileY() < 0) || (e->getTileY() >= MAP_HEIGHT / Tile::TILE_HEIGHT) || (e->getTileX() < 0) || (e->getTileX() >= MAP_WIDTH / Tile::TILE_WIDTH))
+		e->moveBack();
 
-	// Make sure the player isn't trying to go offscreen
-	if((p->getTileY() < 0) || (p->getTileY() >= MAP_HEIGHT / Tile::TILE_HEIGHT) || (p->getTileX() < 0) || (p->getTileX() >= MAP_WIDTH / Tile::TILE_WIDTH))
-		p->moveBack();
-	// Make sure the monster isn't trying to go offscreen
-	if((m->getTileY() < 0) || (m->getTileY() >= MAP_HEIGHT / Tile::TILE_HEIGHT) || (m->getTileX() < 0) || (m->getTileX() >= MAP_WIDTH / Tile::TILE_WIDTH))
-		m->moveBack();
-
-	// Make sure the player isn't trying to go through a blocked tile
-	switch(tiles[p->getTileX()][p->getTileY()].getProp())
+	if(e == p)
 	{
-	case Tile::TP_BLOCKED:
+		// Make sure the player does not try to move into the monster
+		if((m->getTileY() == p->getTileY()) && (m->getTileX() == p->getTileX()))
 		p->moveBack();
-		break;
-	case Tile::TP_TELEPORT:
-		int mn = tiles[p->getTileX()][p->getTileY()].getTeleMapNum();
-		stringstream s;
-		s<<"room"<<mn<<".map";
-		if(s.str().compare(mapName))
-			load(s.str());
-		p->setTileXY(tiles[p->getTileX()][p->getTileY()].getTeleX(), tiles[p->getTileX()][p->getTileY()].getTeleY());
-		break;
+
+		switch(tiles[p->getTileX()][p->getTileY()].getProp())
+		{
+		case Tile::TP_BLOCKED:
+			p->moveBack();
+			break;
+		case Tile::TP_TELEPORT:
+			int mn = tiles[p->getTileX()][p->getTileY()].getTeleMapNum();
+			stringstream s;
+			s<<"room"<<mn<<".map";
+			if(s.str().compare(mapName))
+				load(s.str());
+			p->setTileXY(tiles[p->getTileX()][p->getTileY()].getTeleX(), tiles[p->getTileX()][p->getTileY()].getTeleY());
+			break;
+		}
 	}
-	// The monster will not teleport
-	switch(tiles[m->getTileX()][m->getTileY()].getProp())
+	else if(e == m)
 	{
-	case Tile::TP_BLOCKED:
+		// Make sure the monster does not try to move into the player
+		if((m->getTileY() == p->getTileY()) && (m->getTileX() == p->getTileX()))
 		m->moveBack();
-		break;
+
+		switch(tiles[m->getTileX()][m->getTileY()].getProp())
+		{
+		case Tile::TP_BLOCKED:
+			m->moveBack();
+			break;
+		}
 	}
 
 }
@@ -197,7 +203,6 @@ void Map::checkCollisions()
 void Map::tick()
 {
 	
-	checkCollisions();
 	p->tick();
 	m->tick();
 	

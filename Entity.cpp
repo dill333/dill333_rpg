@@ -1,4 +1,5 @@
 #include "Entity.h"
+#include "Map.h"
 
 Entity::Entity()
 {
@@ -30,6 +31,14 @@ Entity::Entity(string sheetName, int tX, int tY)
 
 	// Set up the current sprite
 	updateSprite();
+	m = NULL;
+
+}
+
+void Entity::setMap(Map *ma)
+{
+
+	m = ma;
 
 }
 
@@ -76,6 +85,9 @@ void Entity::tick()
 	}
 
 	updateSprite();
+
+	if(m)
+		m->checkCollisions(this);
 
 }
 

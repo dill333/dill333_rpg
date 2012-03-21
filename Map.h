@@ -1,12 +1,12 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <string>
+#include <sstream>
 #include "Tile.h"
 #include "TextureManager.h"
 #include "Player.h"
 #include "Monster.h"
-#include <string>
-#include <sstream>
 
 using namespace std;
 
@@ -25,13 +25,13 @@ class Map
 	Player *p;
 	Monster *m;
 	string mapName;
-	void checkCollisions();
 	void updateSprite();
 public:
 	Map();
 	void load(string mN);
 	void save();
 	bool isLoaded();
+	void checkCollisions(Entity *e);
 	void tick();
 	void draw(sf::RenderWindow *window);
 	~Map();
