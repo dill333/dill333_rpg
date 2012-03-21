@@ -1,0 +1,3 @@
+Don't allow entities to stay when the map changes
+Make some sort of way to save entities' positions when the map changes
+Make some sort of way to spawn entities using the map editor (should be similar to above)
