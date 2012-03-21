@@ -30,8 +30,13 @@ Map::Map()
 
 	p = new Player("playersheet.png", 5, 5);
 	p->setMap(this);
-	m = new Monster("monstersheet.png", 10, 10);
-	m->setMap(this);
+	entities.push_back(new Monster("monstersheet.png", 10, 10));
+	entities.push_back(new Monster("monstersheet.png", 9, 10));
+	entities.push_back(new Monster("monstersheet.png", 10, 9));
+	entities.push_back(new Monster("monstersheet.png", 9, 9));
+
+	for(int i = 0; i < entities.size(); i++)
+		entities[i]->setMap(this);
 
 }
 
@@ -165,9 +170,12 @@ void Map::checkCollisions(Entity *e)
 
 	if(e == p)
 	{
-		// Make sure the player does not try to move into the monster
-		if((m->getTileY() == p->getTileY()) && (m->getTileX() == p->getTileX()))
-		p->moveBack();
+		// Make sure the player does not try to move into the entities
+		for(int i = 0; i < entities.size(); i++)
+		{
+			if((entities[i]->getTileX() == p->getTileX()) && (entities[i]->getTileY() == p->getTileY()))
+				p->moveBack();
+		}
 
 		switch(tiles[p->getTileX()][p->getTileY()].getProp())
 		{
@@ -184,16 +192,26 @@ void Map::checkCollisions(Entity *e)
 			break;
 		}
 	}
-	else if(e == m)
+	else
 	{
-		// Make sure the monster does not try to move into the player
-		if((m->getTileY() == p->getTileY()) && (m->getTileX() == p->getTileX()))
-		m->moveBack();
+		for(int i = 0; i < entities.size(); i++)
+		{
+			if(e != entities[i])
+			{
+				// Make sure the entity does not try to move into the other entities
+				if((e->getTileX() == entities[i]->getTileX()) && (e->getTileY() == entities[i]->getTileY()))
+					e->moveBack();
+			}
+		}
 
-		switch(tiles[m->getTileX()][m->getTileY()].getProp())
+		// Make sure the entity does not try to move into the player
+		if((e->getTileX() == p->getTileX()) && (e->getTileY() == p->getTileY()))
+			e->moveBack();
+
+		switch(tiles[e->getTileX()][e->getTileY()].getProp())
 		{
 		case Tile::TP_BLOCKED:
-			m->moveBack();
+			e->moveBack();
 			break;
 		}
 	}
@@ -204,7 +222,9 @@ void Map::tick()
 {
 	
 	p->tick();
-	m->tick();
+	
+	for(int i = 0; i < entities.size(); i++)
+		entities[i]->tick();
 	
 }
 
@@ -214,7 +234,9 @@ void Map::draw(sf::RenderWindow *window)
 	// Draw the map sprite
 	window->draw(mapSprite);
 	p->draw(window);
-	m->draw(window);
+
+	for(int i = 0; i < entities.size(); i++)
+		entities[i]->draw(window);
 
 }
 
@@ -222,6 +244,10 @@ Map::~Map()
 {
 
 	delete p;
-	delete m;
+
+	for(int i = 0; i < entities.size(); i++)
+		delete entities[i];
+
+	entities.clear();
 
 }

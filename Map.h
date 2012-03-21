@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
 #include "Tile.h"
 #include "TextureManager.h"
 #include "Player.h"
@@ -23,8 +24,8 @@ class Map
 	bool loaded;
 	bool loadedTileSheet;
 	Player *p;
-	Monster *m;
 	string mapName;
+	vector<Entity*> entities;
 	void updateSprite();
 public:
 	Map();

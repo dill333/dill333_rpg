@@ -8,6 +8,7 @@ Monster::Monster(string sheetName, int tX, int tY) : Entity(sheetName, tX, tY)
 {
 
 	go = 0;
+	srand(time(NULL));
 
 }
 
@@ -19,7 +20,6 @@ void Monster::move()
 	go %= 30;
 	if(!go)
 	{
-		srand(time(NULL));
 		switch(rand() % 5)
 		{
 		case DIR_UP:
