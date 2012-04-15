@@ -8,7 +8,7 @@ Map::Map()
 	loadedTileSheet = true;
 
 	// Load the tile types
-	sf::Texture *tileSheetTexture = TextureManager::getTexture("tilesheet.png");
+	sf::Texture *tileSheetTexture = TextureManager::getTexture("tiles0.png");
 	if(tileSheetTexture != NULL)
 	{
 		// Load the tile types
@@ -120,8 +120,8 @@ void Map::updateSprite()
 		{
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
 			{
-				tiles[i][j].create(i, j, 2, 0, Tile::TP_NONE);
-				sf::Sprite temp = tileTypes[2][0];
+				tiles[i][j].create(i, j, 1, 0, Tile::TP_NONE);
+				sf::Sprite temp = tileTypes[tiles[i][j].getTileTypeX()][tiles[i][j].getTileTypeY()];
 				temp.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
 				mapTexture.draw(temp);
 			}
