@@ -16,8 +16,12 @@ Map::Map()
 		{
 			for(int j = 0; j < NUM_TTY; j++)
 			{
-				tileTypes[i][j].setTexture(*tileSheetTexture);
-				tileTypes[i][j].setTextureRect(sf::Rect<int>(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT, Tile::TILE_WIDTH, Tile::TILE_HEIGHT));
+				sf::Sprite* tt = new sf::Sprite();
+				tt->setTexture(*tileSheetTexture);
+				tt->setTextureRect(sf::Rect<int>(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT, Tile::TILE_WIDTH, Tile::TILE_HEIGHT));
+				tileTypes.push_back(tt);
+				//tileTypes[i][j].setTexture(*tileSheetTexture);
+				//tileTypes[i][j].setTextureRect(sf::Rect<int>(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT, Tile::TILE_WIDTH, Tile::TILE_HEIGHT));
 			}
 		}
 	}
@@ -95,10 +99,10 @@ void Map::updateSprite()
 				if((ttx < 0) || (ttx > NUM_TTX) || (tty < 0) || (tty > NUM_TTY))
 				{
 					loaded = false;
-					temp = tileTypes[2][0];
+					temp = *tileTypes[2 * NUM_TTY];
 				}
 				else
-					temp = tileTypes[ttx][tty];
+					temp = *tileTypes[(ttx * NUM_TTY) + tty];
 
 				// Make sure whoever edited this file knew what they were doing
 				if(((i * Tile::TILE_WIDTH) != rect.left) || ((j * Tile::TILE_HEIGHT) != rect.top))
@@ -248,6 +252,10 @@ Map::~Map()
 	for(int i = 0; i < entities.size(); i++)
 		delete entities[i];
 
+	for(int i = 0; i < tileTypes.size(); i++)
+		delete tileTypes[i];
+
 	entities.clear();
+	tileTypes.clear();
 
 }
