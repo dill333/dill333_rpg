@@ -14,7 +14,6 @@ class TileSpriteManager
 	static const int NUM_TILE_SHEETS = 25;
 	static const int NUM_TTX = 8;
 	static const int NUM_TTY = 23;
-	static int numLoaded;
 
 	// The tile sprites that are loaded
 	static vector<sf::Sprite*> sprites;
