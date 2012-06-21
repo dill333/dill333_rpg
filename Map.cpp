@@ -7,7 +7,7 @@ Map::Map()
 	loaded = true;
 	loadedTileSheet = true;
 
-	// Load the tile types
+	/*// Load the tile types
 	sf::Texture *tileSheetTexture = TextureManager::getTexture("tiles0.png");
 	if(tileSheetTexture != NULL)
 	{
@@ -26,7 +26,7 @@ Map::Map()
 		}
 	}
 	else
-		loadedTileSheet = false;
+		loadedTileSheet = false;*/
 
 	// Set up the map texture
 	mapTexture.create(MAP_WIDTH, MAP_HEIGHT);
@@ -99,10 +99,11 @@ void Map::updateSprite()
 				if((ttx < 0) || (ttx > NUM_TTX) || (tty < 0) || (tty > NUM_TTY))
 				{
 					loaded = false;
-					temp = *tileTypes[2 * NUM_TTY];
+					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 2, 0));
+					//temp = *tileTypes[2 * NUM_TTY];
 				}
 				else
-					temp = *tileTypes[(ttx * NUM_TTY) + tty];
+					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, ttx, tty));
 
 				// Make sure whoever edited this file knew what they were doing
 				if(((i * Tile::TILE_WIDTH) != rect.left) || ((j * Tile::TILE_HEIGHT) != rect.top))
@@ -125,7 +126,7 @@ void Map::updateSprite()
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
 			{
 				tiles[i][j].create(i, j, 1, 0, Tile::TP_NONE);
-				sf::Sprite temp = tileTypes[tiles[i][j].getTileTypeX()][tiles[i][j].getTileTypeY()];
+				sf::Sprite temp =temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 2, 0));
 				temp.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
 				mapTexture.draw(temp);
 			}
@@ -252,10 +253,6 @@ Map::~Map()
 	for(int i = 0; i < entities.size(); i++)
 		delete entities[i];
 
-	for(int i = 0; i < tileTypes.size(); i++)
-		delete tileTypes[i];
-
 	entities.clear();
-	tileTypes.clear();
 
 }

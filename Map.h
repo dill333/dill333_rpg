@@ -6,6 +6,7 @@
 #include <vector>
 #include "Tile.h"
 #include "TextureManager.h"
+#include "TileSpriteManager.h"
 #include "Player.h"
 #include "Monster.h"
 
@@ -17,7 +18,7 @@ class Map
 	static const int MAP_HEIGHT = 640;
 	static const int NUM_TTX = 8;
 	static const int NUM_TTY = 23;
-	vector<sf::Sprite*> tileTypes;		// Dynamically allocated so we only load the tiles we need
+	//vector<sf::Sprite*> tileTypes;		// Dynamically allocated so we only load the tiles we need
 	//sf::Sprite tileTypes[NUM_TTX][NUM_TTY];
 	sf::RenderTexture mapTexture;
 	sf::Sprite mapSprite;
