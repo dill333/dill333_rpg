@@ -4,11 +4,12 @@ Tile::Tile()
 {
 }
 
-Tile::Tile(int tileX, int tileY, int ttx, int tty, int p, int tlx, int tly, int tmn)
+Tile::Tile(int tSN, int tileX, int tileY, int ttx, int tty, int p, int tlx, int tly, int tmn)
 {
 
 	// Set up the tile
 	rect = sf::Rect<int>(tileX * TILE_WIDTH, tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+	tileSheetNum = tSN;
 	tileTypeX = ttx;
 	tileTypeY = tty;
 	prop = p;
@@ -18,17 +19,25 @@ Tile::Tile(int tileX, int tileY, int ttx, int tty, int p, int tlx, int tly, int 
 
 }
 
-void Tile::create(int tileX, int tileY, int ttx, int tty, int p, int tlx, int tly, int tmn)
+void Tile::create(int tSN, int tileX, int tileY, int ttx, int tty, int p, int tlx, int tly, int tmn)
 {
 
 	// Set up the tile
 	rect = sf::Rect<int>(tileX * TILE_WIDTH, tileY * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+	tileSheetNum = tSN;
 	tileTypeX = ttx;
 	tileTypeY = tty;
 	prop = p;
 	teleX = tlx;
 	teleY = tly;
 	teleMapNum = tmn;
+
+}
+
+int Tile::getTileSheetNum()
+{
+
+	return tileSheetNum;
 
 }
 
@@ -88,7 +97,7 @@ Tile::~Tile()
 ostream &operator<<(ostream &stream, Tile t)
 {
 
-	stream<<t.rect.left<<" "<<t.rect.top<<" "<<t.tileTypeX<<" "<<t.tileTypeY<<" "<<t.prop;
+	stream<<t.tileSheetNum<<" "<<t.rect.left<<" "<<t.rect.top<<" "<<t.tileTypeX<<" "<<t.tileTypeY<<" "<<t.prop;
 	if(t.prop == Tile::TP_TELEPORT)
 		stream<<" "<<t.teleMapNum<<" "<<t.teleX<<" "<<t.teleY;
 
@@ -101,7 +110,7 @@ ostream &operator<<(ostream &stream, Tile t)
 istream &operator>>(istream &stream, Tile &t)
 {
 
-	stream>>t.rect.left>>t.rect.top>>t.tileTypeX>>t.tileTypeY>>t.prop;
+	stream>>t.tileSheetNum>>t.rect.left>>t.rect.top>>t.tileTypeX>>t.tileTypeY>>t.prop;
 	if(t.prop == Tile::TP_TELEPORT)
 		stream>>t.teleMapNum>>t.teleX>>t.teleY;
 

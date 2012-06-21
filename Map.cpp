@@ -34,10 +34,10 @@ Map::Map()
 
 	p = new Player("playersheet.png", 5, 5);
 	p->setMap(this);
-	entities.push_back(new Monster("monstersheet.png", 10, 10));
-	entities.push_back(new Monster("monstersheet.png", 9, 10));
-	entities.push_back(new Monster("monstersheet.png", 10, 9));
-	entities.push_back(new Monster("monstersheet.png", 9, 9));
+	entities.push_back(new Monster("monstersheet.png", 12, 12));
+	entities.push_back(new Monster("monstersheet.png", 11, 12));
+	entities.push_back(new Monster("monstersheet.png", 12, 11));
+	entities.push_back(new Monster("monstersheet.png", 11, 11));
 
 	for(int i = 0; i < entities.size(); i++)
 		entities[i]->setMap(this);
@@ -92,6 +92,7 @@ void Map::updateSprite()
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
 			{
 				// Get tile info
+				int tsn = tiles[i][j].getTileSheetNum();
 				int ttx = tiles[i][j].getTileTypeX();
 				int tty = tiles[i][j].getTileTypeY();
 				sf::Rect<int> rect = tiles[i][j].getRect();
@@ -99,11 +100,11 @@ void Map::updateSprite()
 				if((ttx < 0) || (ttx > NUM_TTX) || (tty < 0) || (tty > NUM_TTY))
 				{
 					loaded = false;
-					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 2, 0));
+					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
 					//temp = *tileTypes[2 * NUM_TTY];
 				}
 				else
-					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, ttx, tty));
+					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(tsn, ttx, tty));
 
 				// Make sure whoever edited this file knew what they were doing
 				if(((i * Tile::TILE_WIDTH) != rect.left) || ((j * Tile::TILE_HEIGHT) != rect.top))
@@ -125,8 +126,8 @@ void Map::updateSprite()
 		{
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
 			{
-				tiles[i][j].create(i, j, 1, 0, Tile::TP_NONE);
-				sf::Sprite temp =temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 2, 0));
+				tiles[i][j].create(0, i, j, 1, 0, Tile::TP_NONE);
+				sf::Sprite temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
 				temp.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
 				mapTexture.draw(temp);
 			}
