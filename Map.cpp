@@ -59,13 +59,16 @@ void Map::load(string mN)
 	{
 		for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
 		{
-			if(file.good())
-				file>>tiles[j][i];
-			else
+			for(int k = 0; k < NUM_LAYERS; k++)
 			{
-				// EOF too early
-				file.close();
-				loaded = false;
+				if(file.good())
+					file>>tiles[k][j][i];
+				else
+				{
+					// EOF too early
+					file.close();
+					loaded = false;
+				}
 			}
 		}
 	}
@@ -91,28 +94,31 @@ void Map::updateSprite()
 		{
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
 			{
-				// Get tile info
-				int tsn = tiles[i][j].getTileSheetNum();
-				int ttx = tiles[i][j].getTileTypeX();
-				int tty = tiles[i][j].getTileTypeY();
-				sf::Rect<int> rect = tiles[i][j].getRect();
-				sf::Sprite temp;
-				if((ttx < 0) || (ttx > NUM_TTX) || (tty < 0) || (tty > NUM_TTY))
+				for(int k = 0; k < NUM_LAYERS; k++)
 				{
-					loaded = false;
-					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
-					//temp = *tileTypes[2 * NUM_TTY];
+					// Get tile info
+					int tsn = tiles[k][i][j].getTileSheetNum();
+					int ttx = tiles[k][i][j].getTileTypeX();
+					int tty = tiles[k][i][j].getTileTypeY();
+					sf::Rect<int> rect = tiles[k][i][j].getRect();
+					sf::Sprite temp;
+					if((ttx < 0) || (ttx > NUM_TTX) || (tty < 0) || (tty > NUM_TTY))
+					{
+						loaded = false;
+						temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
+						//temp = *tileTypes[2 * NUM_TTY];
+					}
+					else
+						temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(tsn, ttx, tty));
+
+					// Make sure whoever edited this file knew what they were doing
+					if(((i * Tile::TILE_WIDTH) != rect.left) || ((j * Tile::TILE_HEIGHT) != rect.top))
+						loaded = false;
+
+					// Move the sprite to where we need to draw it
+					temp.setPosition(rect.left, rect.top);
+					mapTexture.draw(temp);
 				}
-				else
-					temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(tsn, ttx, tty));
-
-				// Make sure whoever edited this file knew what they were doing
-				if(((i * Tile::TILE_WIDTH) != rect.left) || ((j * Tile::TILE_HEIGHT) != rect.top))
-					loaded = false;
-
-				// Move the sprite to where we need to draw it
-				temp.setPosition(rect.left, rect.top);
-				mapTexture.draw(temp);
 			}
 		}
 		mapTexture.display();
@@ -126,10 +132,14 @@ void Map::updateSprite()
 		{
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
 			{
-				tiles[i][j].create(0, i, j, 1, 0, Tile::TP_NONE);
-				sf::Sprite temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
-				temp.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
-				mapTexture.draw(temp);
+				tiles[0][i][j].create(0, i, j, 1, 0, Tile::TP_NONE);
+				tiles[1][i][j].create(0, i, j, 0, 0, Tile::TP_NONE);
+				sf::Sprite temp1 = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
+				sf::Sprite temp2 = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 0, 0));
+				temp1.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
+				temp2.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
+				mapTexture.draw(temp1);
+				mapTexture.draw(temp2);
 			}
 		}
 		// Save over the corrupt map with the default one
@@ -151,7 +161,8 @@ void Map::save()
 	// Set up all of the tiles
 	for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
 		for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
-				file<<tiles[j][i];
+			for(int k = 0; k < NUM_LAYERS; k++)
+				file<<tiles[k][j][i];
 
 	// Close the file
 	file.close();
@@ -183,18 +194,18 @@ void Map::checkCollisions(Entity *e)
 				p->moveBack();
 		}
 
-		switch(tiles[p->getTileX()][p->getTileY()].getProp())
+		switch(tiles[0][p->getTileX()][p->getTileY()].getProp())
 		{
 		case Tile::TP_BLOCKED:
 			p->moveBack();
 			break;
 		case Tile::TP_TELEPORT:
-			int mn = tiles[p->getTileX()][p->getTileY()].getTeleMapNum();
+			int mn = tiles[0][p->getTileX()][p->getTileY()].getTeleMapNum();
 			stringstream s;
 			s<<"room"<<mn<<".map";
 			if(s.str().compare(mapName))
 				load(s.str());
-			p->setTileXY(tiles[p->getTileX()][p->getTileY()].getTeleX(), tiles[p->getTileX()][p->getTileY()].getTeleY());
+			p->setTileXY(tiles[0][p->getTileX()][p->getTileY()].getTeleX(), tiles[0][p->getTileX()][p->getTileY()].getTeleY());
 			break;
 		}
 	}
@@ -214,7 +225,7 @@ void Map::checkCollisions(Entity *e)
 		if((e->getTileX() == p->getTileX()) && (e->getTileY() == p->getTileY()))
 			e->moveBack();
 
-		switch(tiles[e->getTileX()][e->getTileY()].getProp())
+		switch(tiles[0][e->getTileX()][e->getTileY()].getProp())
 		{
 		case Tile::TP_BLOCKED:
 			e->moveBack();

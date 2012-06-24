@@ -18,11 +18,10 @@ class Map
 	static const int MAP_HEIGHT = 640;
 	static const int NUM_TTX = 8;
 	static const int NUM_TTY = 23;
-	//vector<sf::Sprite*> tileTypes;		// Dynamically allocated so we only load the tiles we need
-	//sf::Sprite tileTypes[NUM_TTX][NUM_TTY];
+	static const int NUM_LAYERS = 2;
 	sf::RenderTexture mapTexture;
 	sf::Sprite mapSprite;
-	Tile tiles[MAP_WIDTH / Tile::TILE_WIDTH][MAP_HEIGHT / Tile::TILE_HEIGHT];
+	Tile tiles[NUM_LAYERS][MAP_WIDTH / Tile::TILE_WIDTH][MAP_HEIGHT / Tile::TILE_HEIGHT];
 	bool loaded;
 	bool loadedTileSheet;
 	Player *p;
