@@ -29,7 +29,8 @@ Map::Map()
 		loadedTileSheet = false;*/
 
 	// Set up the map texture
-	mapTexture.create(MAP_WIDTH, MAP_HEIGHT);
+	for(int i = 0; i < NUM_LAYERS; i++)
+		mapTexture[i].create(MAP_WIDTH, MAP_HEIGHT);
 	load("room1.map");
 
 	p = new Player("playersheet.png", 5, 5);
@@ -84,7 +85,8 @@ void Map::updateSprite()
 {
 
 	// Clear the map
-	mapTexture.clear();
+	for(int i = 0; i < NUM_LAYERS; i++)
+		mapTexture[i].clear(sf::Color(0, 0, 0, 0));
 
 	// Make sure we have a map
 	if(loaded)
@@ -105,8 +107,10 @@ void Map::updateSprite()
 					if((ttx < 0) || (ttx > NUM_TTX) || (tty < 0) || (tty > NUM_TTY))
 					{
 						loaded = false;
-						temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
-						//temp = *tileTypes[2 * NUM_TTY];
+						if(k == 0)
+							temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
+						else
+							temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 0, 0));
 					}
 					else
 						temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(tsn, ttx, tty));
@@ -117,12 +121,15 @@ void Map::updateSprite()
 
 					// Move the sprite to where we need to draw it
 					temp.setPosition(rect.left, rect.top);
-					mapTexture.draw(temp);
+					mapTexture[k].draw(temp);
 				}
 			}
 		}
-		mapTexture.display();
-		mapSprite.setTexture(mapTexture.getTexture());
+		for(int i = 0; i < NUM_LAYERS; i++)
+		{
+			mapTexture[i].display();
+			mapSprite[i].setTexture(mapTexture[i].getTexture());
+		}
 	}
 
 	if(!loaded)
@@ -132,22 +139,33 @@ void Map::updateSprite()
 		{
 			for(int j = 0; j < MAP_HEIGHT / Tile::TILE_HEIGHT; j++)
 			{
-				tiles[0][i][j].create(0, i, j, 1, 0, Tile::TP_NONE);
-				tiles[1][i][j].create(0, i, j, 0, 0, Tile::TP_NONE);
-				sf::Sprite temp1 = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
-				sf::Sprite temp2 = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 0, 0));
-				temp1.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
-				temp2.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
-				mapTexture.draw(temp1);
-				mapTexture.draw(temp2);
+				for(int k = 0; k < NUM_LAYERS; k++)
+				{
+					sf::Sprite temp;
+					if(k == 0)
+					{
+						tiles[k][i][j].create(0, i, j, 1, 0, Tile::TP_NONE);
+						temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 1, 0));
+					}
+					else
+					{
+						tiles[k][i][j].create(0, i, j, 0, 0, Tile::TP_NONE);
+						temp = *TileSpriteManager::getTileSprite(sf::Vector3<int>(0, 0, 0));
+					}	
+					temp.setPosition(i * Tile::TILE_WIDTH, j * Tile::TILE_HEIGHT);
+					mapTexture[k].draw(temp);
+				}
 			}
 		}
 		// Save over the corrupt map with the default one
 		save();
 	}
 
-	mapTexture.display();
-	mapSprite.setTexture(mapTexture.getTexture());
+	for(int i = 0; i < NUM_LAYERS; i++)
+	{
+		mapTexture[i].display();
+		mapSprite[i].setTexture(mapTexture[i].getTexture());
+	}
 
 }
 
@@ -249,11 +267,13 @@ void Map::draw(sf::RenderWindow *window)
 {
 
 	// Draw the map sprite
-	window->draw(mapSprite);
+	window->draw(mapSprite[0]);
 	p->draw(window);
 
 	for(int i = 0; i < entities.size(); i++)
 		entities[i]->draw(window);
+
+	window->draw(mapSprite[1]);
 
 }
 

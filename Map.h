@@ -19,8 +19,8 @@ class Map
 	static const int NUM_TTX = 8;
 	static const int NUM_TTY = 23;
 	static const int NUM_LAYERS = 2;
-	sf::RenderTexture mapTexture;
-	sf::Sprite mapSprite;
+	sf::RenderTexture mapTexture[NUM_LAYERS];
+	sf::Sprite mapSprite[NUM_LAYERS];
 	Tile tiles[NUM_LAYERS][MAP_WIDTH / Tile::TILE_WIDTH][MAP_HEIGHT / Tile::TILE_HEIGHT];
 	bool loaded;
 	bool loadedTileSheet;
