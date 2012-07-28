@@ -6,6 +6,7 @@ Map::Map()
 	// If nothing goes wrong, this will still be true at the end
 	loaded = true;
 	loadedTileSheet = true;
+	p = NULL;
 
 	/*// Load the tile types
 	sf::Texture *tileSheetTexture = TextureManager::getTexture("tiles0.png");
@@ -33,15 +34,7 @@ Map::Map()
 		mapTexture[i].create(MAP_WIDTH, MAP_HEIGHT);
 	load("room1.map");
 
-	p = new Player("playersheet.png", 5, 5);
-	p->setMap(this);
-	entities.push_back(new Monster("monstersheet.png", 12, 12));
-	entities.push_back(new Monster("monstersheet.png", 11, 12));
-	entities.push_back(new Monster("monstersheet.png", 12, 11));
-	entities.push_back(new Monster("monstersheet.png", 11, 11));
-
-	for(int i = 0; i < entities.size(); i++)
-		entities[i]->setMap(this);
+	loadPlayer();
 
 }
 
@@ -77,7 +70,62 @@ void Map::load(string mN)
 	// Close the file
 	file.close();
 
+	// Before we load the entities, we must get rid of the ones from the last map
+	for(int i = 0; i < entities.size(); i++)
+		delete entities[i];
+
+	entities.clear();
+
+	loadEntities();
+
 	updateSprite();
+
+}
+
+void Map::loadPlayer()
+{
+
+	// Load the player
+	if(loaded)
+	{
+		for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
+		{
+			for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
+			{
+				if(tiles[0][i][j].getProp() == Tile::TP_PSPAWN)
+				{
+					p = new Player("playersheet.png", i, j);
+					p->setMap(this);
+					return;
+				}
+			}
+		}
+	}
+
+	// Couldn't find the player spawn, must set it
+	p = new Player("playersheet.png", 0, 0);
+	p->setMap(this);
+
+
+}
+
+void Map::loadEntities()
+{
+
+	// Load the entities
+	if(loaded)
+	{
+		for(int i = 0; i < MAP_HEIGHT / Tile::TILE_HEIGHT; i++)
+		{
+			for(int j = 0; j < MAP_WIDTH / Tile::TILE_WIDTH; j++)
+			{
+				if(tiles[0][i][j].getProp() == Tile::TP_MSPAWN)
+					entities.push_back(new Monster("monstersheet.png", i, j));
+			}
+		}
+		for(int i = 0; i < entities.size(); i++)
+			entities[i]->setMap(this);
+	}
 
 }
 
@@ -157,6 +205,7 @@ void Map::updateSprite()
 				}
 			}
 		}
+		tiles[0][0][0].create(0, 0, 0, 1, 0, Tile::TP_PSPAWN);
 		// Save over the corrupt map with the default one
 		save();
 	}
@@ -255,8 +304,9 @@ void Map::checkCollisions(Entity *e)
 
 void Map::tick()
 {
-	
-	p->tick();
+
+	if(p != NULL)
+		p->tick();
 	
 	for(int i = 0; i < entities.size(); i++)
 		entities[i]->tick();

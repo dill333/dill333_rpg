@@ -9,6 +9,7 @@
 #include "TileSpriteManager.h"
 #include "Player.h"
 #include "Monster.h"
+#include "iostream"
 
 using namespace std;
 
@@ -28,6 +29,8 @@ class Map
 	string mapName;
 	vector<Entity*> entities;
 	void updateSprite();
+	void loadPlayer();
+	void loadEntities();
 public:
 	Map();
 	void load(string mN);

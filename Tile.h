@@ -20,7 +20,7 @@ class Tile
 public:
 	static const int TILE_WIDTH = 32;
 	static const int TILE_HEIGHT = 32;
-	static const enum properties {TP_NONE, TP_BLOCKED, TP_TELEPORT};
+	static const enum properties {TP_NONE, TP_BLOCKED, TP_TELEPORT, TP_PSPAWN, TP_MSPAWN};
 	Tile();
 	Tile(int tSN, int tileX, int tileY, int ttx, int tty, int p, int tlx = 0, int tly = 0, int tmn = 1);
 	void create(int tSN, int tileX, int tileY, int ttx, int tty, int p, int tlx = 0, int tly = 0, int tmn = 1);
